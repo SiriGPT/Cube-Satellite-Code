@@ -1,46 +1,22 @@
-"""
-
-This code starts in radio group 216, where it will display
-
-"Starting Brodcast...". After that, every 5 secs, it will brodcast its
-
-temperature, light level, and compass heading. Also, it will send alternating signals
-
-to pin 1 and pin 2, so that 2 LEDS can be sttached and the lights
-
-will alternate between on and off, creating the illusion of processing.
-
-"""
-"""
-
-Initalisation - micro:bit doesn't like me naming variables called "Light", so the var name is "Light2"
-
-"""
-Light2 = 0
+Light = 0
 radio.set_group(216)
-pins.digital_write_pin(DigitalPin.P1, 0)
 pins.digital_write_pin(DigitalPin.P0, 0)
-radio.send_string("Starting Brodcast...")
-# Light change function
+pins.digital_write_pin(DigitalPin.P1, 0)
 
 def on_every_interval():
-    global Light2
-    if Light2 == 0:
-        pins.digital_write_pin(DigitalPin.P1, 0)
-        pins.digital_write_pin(DigitalPin.P0, 1)
-        Light2 = 1
-    elif Light2 == 1:
-        pins.digital_write_pin(DigitalPin.P1, 1)
+    global Light
+    if Light % 2 == 0:
         pins.digital_write_pin(DigitalPin.P0, 0)
-        Light2 = 0
+        pins.digital_write_pin(DigitalPin.P1, 1)
     else:
-        pass
+        pins.digital_write_pin(DigitalPin.P0, 1)
+        pins.digital_write_pin(DigitalPin.P1, 0)
+    Light += 1
 loops.every_interval(500, on_every_interval)
 
-# Compass and temperature function
-
 def on_every_interval2():
-    radio.send_string("Temp: " + ("" + str(input.temperature())))
-    radio.send_string("Compass: " + ("" + str(input.compass_heading())))
-    radio.send_string("Light level: " + (""+ str(input.light_level()))
-loops.every_interval(5000, on_every_interval2)
+    radio.send_number(input.temperature())
+    radio.send_number(input.light_level())
+    radio.send_number(input.compass_heading())
+    radio.send_number(input.sound_level())
+loops.every_interval(2000, on_every_interval2)
